@@ -28,6 +28,15 @@ jobs:
       run: |
         find . -name "*.py" -or -name "*.ipynb" | while read file; do
           dest_path="/Workspace/Users/nikesh.kaza@accenture.com/mlops_main/${file#./}"
-          echo "Uploading $file to $dest_path"
-          databricks workspace import "$file" "$dest_path" --overwrite
+          if [[ "$file" == *.py ]]; then
+            lang="PYTHON"
+          elif [[ "$file" == *.ipynb ]]; then
+            lang="PYTHON"  # or "NOTEBOOK" — both usually work, depending on your setup
+          else
+            echo "Skipping $file (unknown type)"
+            continue
+          fi
+          echo "Uploading $file to $dest_path as $lang"
+          databricks workspace import "$file" "$dest_path" --language $lang --overwrite
         done
+
