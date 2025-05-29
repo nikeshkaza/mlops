@@ -6,6 +6,8 @@ name: CI
 on:
   # Triggers the workflow on push for main and dev branch
   push:
+    paths:
+      - '1_data_ingestion_and_training.ipynb'
     paths-ignore:
       - .github
     branches:
@@ -53,6 +55,12 @@ jobs:
       run: |
         databricks repos update ${{env.REPO_PATH}} --branch "${{ steps.extract_branch.outputs.branch }}"
 
+    - name: Trigger Databricks Job
+      run: |
+        curl -X POST ${{ secrets.DATABRICKS_HOST }}/api/2.1/jobs/run-now \
+          -H "Authorization: Bearer ${{ secrets.DATABRICKS_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{"job_id": 38420363721836}'
     # - name: Build Wheel and send to Databricks DBFS workspace location
     #   run: |
     #     cd $GITHUB_WORKSPACE
