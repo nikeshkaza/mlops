@@ -1,0 +1,34 @@
+name: CI/CD to Databricks Prod Workspace
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-to-databricks:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install Databricks CLI
+      run: |
+        pip install databricks-cli
+
+    - name: Configure Databricks CLI
+      run: |
+        mkdir -p ~/.databricks
+        echo -e "[DEFAULT]\nhost = ${{ secrets.DATABRICKS_HOST }}\ntoken = ${{ secrets.DATABRICKS_TOKEN }}" > ~/.databricks/config
+
+    - name: Deploy notebooks to Prod folder in workspace
+      run: |
+        databricks workspace mkdirs /Workspace/ProdDeployment
+
+        # Upload all notebooks recursively from your local repo folder to the Databricks workspace
+        find . -name "*.py" -or -name "*.ipynb" | while read file; do
+          dest_path="/Workspace/Users/nikesh.kaza@accenture.com/mlops_main"
+          echo "Uploading $file to $dest_path"
+          databricks workspace import "$file" "$dest_path" --overwrite
+        done
