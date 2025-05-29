@@ -20,15 +20,14 @@ jobs:
     - name: Configure Databricks CLI
       run: |
         mkdir -p ~/.databricks
-        echo -e "[DEFAULT]\nhost = ${{ secrets.DATABRICKS_HOST }}\ntoken = ${{ secrets.DATABRICKS_TOKEN }}" > ~/.databricks/config
+        echo "[DEFAULT]" > ~/.databricks/config
+        echo "host = ${{ secrets.DATABRICKS_HOST }}" >> ~/.databricks/config
+        echo "token = ${{ secrets.DATABRICKS_TOKEN }}" >> ~/.databricks/config
 
-    - name: Deploy notebooks to Prod folder in workspace
+    - name: Upload notebooks to Databricks workspace
       run: |
-        databricks workspace mkdirs /Workspace/ProdDeployment
-
-        # Upload all notebooks recursively from your local repo folder to the Databricks workspace
         find . -name "*.py" -or -name "*.ipynb" | while read file; do
-          dest_path="/Workspace/Users/nikesh.kaza@accenture.com/mlops_main"
+          dest_path="/Workspace/Users/nikesh.kaza@accenture.com/mlops_main/${file#./}"
           echo "Uploading $file to $dest_path"
           databricks workspace import "$file" "$dest_path" --overwrite
         done
