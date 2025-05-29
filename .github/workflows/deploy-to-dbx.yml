@@ -8,6 +8,7 @@ on:
   push:
     paths-ignore:
       - .github
+      - 2_batch_prediction.ipynb
     branches:
       # Set your base branch name here
       - main
